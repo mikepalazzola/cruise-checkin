@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cruise Check-In</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0077b6 0%, #023e8a 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header .emoji { font-size: 48px; margin-bottom: 8px; }
+    .header h1 { font-size: 24px; color: #023e8a; font-weight: 700; }
+    .header p  { font-size: 14px; color: #666; margin-top: 4px; }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus { border-color: #0077b6; }
+
+    .attendee-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .attendee-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 18px;
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #212529;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .attendee-btn:hover  { background: #e8f4fd; border-color: #0077b6; color: #023e8a; }
+    .attendee-btn:active { transform: scale(0.98); }
+
+    .attendee-btn.checked-in {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+      cursor: default;
+      opacity: 0.75;
+    }
+
+    .attendee-btn .check-icon { font-size: 20px; }
+
+    .no-results { text-align: center; color: #999; padding: 20px 0; font-size: 15px; }
+
+    /* ---- Success overlay ---- */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .overlay.show { display: flex; }
+
+    .success-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 340px;
+      width: 90%;
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .success-card .big-check { font-size: 72px; margin-bottom: 12px; }
+    .success-card h2 { font-size: 22px; color: #155724; margin-bottom: 6px; }
+    .success-card p  { font-size: 15px; color: #555; }
+
+    .btn-ok {
+      margin-top: 24px;
+      padding: 12px 36px;
+      background: #0077b6;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-ok:hover { background: #023e8a; }
+
+    /* ---- Error overlay ---- */
+    .error-card { background: white; border-radius: 20px; padding: 32px; text-align: center; max-width: 340px; width: 90%; }
+    .error-card h2 { color: #721c24; margin-bottom: 8px; }
+    .error-card p  { color: #555; font-size: 14px; }
+
+    .loading { text-align: center; color: #999; padding: 30px 0; }
+
+    .footer { margin-top: 16px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <div class="emoji">🚢</div>
+      <h1>Welcome Aboard!</h1>
+      <p>Tap your name to check in</p>
+    </div>
+
+    <input class="search-box" type="search" placeholder="🔍  Search your name…" id="searchBox" />
+
+    <div class="attendee-list" id="attendeeList">
+      <div class="loading">Loading attendees…</div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by The 180 Group · Cruise Check-In</div>
+
+  <!-- Success overlay -->
+  <div class="overlay" id="successOverlay">
+    <div class="success-card">
+      <div class="big-check">✅</div>
+      <h2>You're checked in!</h2>
+      <p id="successName" style="font-weight:600; font-size:18px; margin:6px 0;"></p>
+      <p>Enjoy the cruise — welcome aboard! 🎉</p>
+      <button class="btn-ok" onclick="closeOverlay()">Done</button>
+    </div>
+  </div>
+
+  <!-- Error overlay -->
+  <div class="overlay" id="errorOverlay">
+    <div class="error-card">
+      <div style="font-size:48px;">⚠️</div>
+      <h2>Something went wrong</h2>
+      <p id="errorMsg">Unable to connect. Please ask a staff member for help.</p>
+      <button class="btn-ok" onclick="document.getElementById('errorOverlay').classList.remove('show')" style="background:#dc3545;">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────────
+    // CONFIGURATION — replace with your deployed
+    // Google Apps Script Web App URL after setup
+    // ─────────────────────────────────────────────
+    const SCRIPT_URL = https://script.google.com/macros/s/AKfycbxusemYESkLPCL3nPQS4uffbjqWDqIqGIzT2RYwD6DaEzSG5GVuf690hsnhU_AE2p7d/exec;
+
+    let allAttendees = [];   // [{ name, checkedIn, timestamp }]
+
+    async function loadAttendees() {
+      try {
+        const res  = await fetch(`${SCRIPT_URL}?action=list`);
+        const data = await res.json();
+        allAttendees = data.attendees || [];
+        renderList(allAttendees);
+      } catch (e) {
+        document.getElementById('attendeeList').innerHTML =
+          '<div class="no-results">⚠️ Could not load attendees.<br>Check your internet connection.</div>';
+      }
+    }
+
+    function renderList(attendees) {
+      const list = document.getElementById('attendeeList');
+      const q    = document.getElementById('searchBox').value.toLowerCase().trim();
+      const filtered = q ? attendees.filter(a => a.name.toLowerCase().includes(q)) : attendees;
+
+      if (!filtered.length) {
+        list.innerHTML = '<div class="no-results">No matching names found.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(a => `
+        <button
+          class="attendee-btn ${a.checkedIn ? 'checked-in' : ''}"
+          onclick="${a.checkedIn ? '' : `checkIn('${encodeURIComponent(a.name)}')`}"
+          ${a.checkedIn ? 'disabled' : ''}
+        >
+          <span>${a.name}</span>
+          <span class="check-icon">${a.checkedIn ? '✅' : '→'}</span>
+        </button>
+      `).join('');
+    }
+
+    document.getElementById('searchBox').addEventListener('input', () => {
+      renderList(allAttendees);
+    });
+
+    async function checkIn(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      try {
+        const res  = await fetch(`${SCRIPT_URL}?action=checkin&name=${encodedName}`);
+        const data = await res.json();
+
+        if (data.success) {
+          // Update local state
+          const idx = allAttendees.findIndex(a => a.name === name);
+          if (idx !== -1) allAttendees[idx].checkedIn = true;
+          renderList(allAttendees);
+
+          // Show success overlay
+          document.getElementById('successName').textContent = name;
+          document.getElementById('successOverlay').classList.add('show');
+        } else {
+          showError(data.message || 'Check-in failed. Please try again.');
+        }
+      } catch (e) {
+        showError('Network error. Please check your connection.');
+      }
+    }
+
+    function closeOverlay() {
+      document.getElementById('successOverlay').classList.remove('show');
+      document.getElementById('searchBox').value = '';
+      renderList(allAttendees);
+    }
+
+    function showError(msg) {
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorOverlay').classList.add('show');
+    }
+
+    // Refresh the list every 30 seconds so check-ins from others appear
+    loadAttendees();
+    setInterval(loadAttendees, 30000);
+  </script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cruise Check-In</title>
+  <title>Cruise Check-In / Check-Out</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,7 +30,6 @@
       text-align: center;
       margin-bottom: 24px;
     }
-
     .header .emoji { font-size: 48px; margin-bottom: 8px; }
     .header h1 { font-size: 24px; color: #023e8a; font-weight: 700; }
     .header p  { font-size: 14px; color: #666; margin-top: 4px; }
@@ -56,6 +55,7 @@
       padding-right: 4px;
     }
 
+    /* ── Button states ── */
     .attendee-btn {
       display: flex;
       align-items: center;
@@ -72,23 +72,34 @@
       transition: all 0.15s ease;
       text-align: left;
     }
-
     .attendee-btn:hover  { background: #e8f4fd; border-color: #0077b6; color: #023e8a; }
     .attendee-btn:active { transform: scale(0.98); }
 
-    .attendee-btn.checked-in {
+    /* On board — green, still tappable to check out */
+    .attendee-btn.on-board {
       background: #d4edda;
       border-color: #28a745;
       color: #155724;
+    }
+    .attendee-btn.on-board:hover { background: #c3e6cb; border-color: #1e7e34; }
+
+    /* Departed — gray, disabled */
+    .attendee-btn.departed {
+      background: #e9ecef;
+      border-color: #ced4da;
+      color: #868e96;
       cursor: default;
-      opacity: 0.75;
+      opacity: 0.7;
     }
 
-    .attendee-btn .check-icon { font-size: 20px; }
+    .btn-label { display: flex; flex-direction: column; gap: 2px; }
+    .btn-sub   { font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+    .check-icon { font-size: 20px; flex-shrink: 0; margin-left: 10px; }
 
     .no-results { text-align: center; color: #999; padding: 20px 0; font-size: 15px; }
+    .loading    { text-align: center; color: #999; padding: 30px 0; }
 
-    /* ---- Success overlay ---- */
+    /* ── Overlays ── */
     .overlay {
       display: none;
       position: fixed;
@@ -97,46 +108,48 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
+      padding: 20px;
     }
     .overlay.show { display: flex; }
 
-    .success-card {
+    .modal {
       background: white;
       border-radius: 20px;
-      padding: 40px 32px;
+      padding: 36px 28px;
       text-align: center;
       max-width: 340px;
-      width: 90%;
-      animation: popIn 0.3s ease;
+      width: 100%;
+      animation: popIn 0.25s ease;
     }
     @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
     }
 
-    .success-card .big-check { font-size: 72px; margin-bottom: 12px; }
-    .success-card h2 { font-size: 22px; color: #155724; margin-bottom: 6px; }
-    .success-card p  { font-size: 15px; color: #555; }
+    .modal .big-icon { font-size: 64px; margin-bottom: 12px; }
+    .modal h2  { font-size: 21px; font-weight: 700; margin-bottom: 6px; }
+    .modal .person-name { font-size: 18px; font-weight: 600; margin: 8px 0; }
+    .modal p   { font-size: 14px; color: #555; margin-top: 6px; }
 
     .btn-ok {
-      margin-top: 24px;
-      padding: 12px 36px;
+      margin-top: 20px;
+      padding: 12px 32px;
       background: #0077b6;
       color: white;
       border: none;
       border-radius: 12px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      width: 100%;
     }
     .btn-ok:hover { background: #023e8a; }
-
-    /* ---- Error overlay ---- */
-    .error-card { background: white; border-radius: 20px; padding: 32px; text-align: center; max-width: 340px; width: 90%; }
-    .error-card h2 { color: #721c24; margin-bottom: 8px; }
-    .error-card p  { color: #555; font-size: 14px; }
-
-    .loading { text-align: center; color: #999; padding: 30px 0; }
+    .btn-ok.orange { background: #fd7e14; }
+    .btn-ok.orange:hover { background: #e96b00; }
+    .btn-ok.red    { background: #dc3545; }
+    .btn-ok.red:hover    { background: #b02a37; }
+    .btn-ok.gray   { background: #6c757d; margin-top: 10px; }
+    .btn-ok.gray:hover   { background: #545b62; }
 
     .footer { margin-top: 16px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); }
   </style>
@@ -147,7 +160,7 @@
     <div class="header">
       <div class="emoji">🚢</div>
       <h1>Welcome Aboard!</h1>
-      <p>Tap your name to check in</p>
+      <p>Tap your name to check in or check out</p>
     </div>
 
     <input class="search-box" type="search" placeholder="🔍  Search your name…" id="searchBox" />
@@ -159,36 +172,59 @@
 
   <div class="footer">Powered by The 180 Group · Cruise Check-In</div>
 
-  <!-- Success overlay -->
-  <div class="overlay" id="successOverlay">
-    <div class="success-card">
-      <div class="big-check">✅</div>
-      <h2>You're checked in!</h2>
-      <p id="successName" style="font-weight:600; font-size:18px; margin:6px 0;"></p>
+  <!-- ── Check-in success ── -->
+  <div class="overlay" id="checkinOverlay">
+    <div class="modal">
+      <div class="big-icon">✅</div>
+      <h2 style="color:#155724;">You're checked in!</h2>
+      <div class="person-name" id="checkinName"></div>
       <p>Enjoy the cruise — welcome aboard! 🎉</p>
-      <button class="btn-ok" onclick="closeOverlay()">Done</button>
+      <button class="btn-ok" onclick="closeAll()">Done</button>
     </div>
   </div>
 
-  <!-- Error overlay -->
+  <!-- ── Check-out confirmation ── -->
+  <div class="overlay" id="checkoutConfirmOverlay">
+    <div class="modal">
+      <div class="big-icon">👋</div>
+      <h2 style="color:#856404;">Ready to leave?</h2>
+      <div class="person-name" id="checkoutConfirmName"></div>
+      <p>Tap <strong>Check Out</strong> to record your departure.</p>
+      <button class="btn-ok orange" id="checkoutConfirmBtn">Check Out</button>
+      <button class="btn-ok gray" onclick="closeAll()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── Check-out success ── -->
+  <div class="overlay" id="checkoutSuccessOverlay">
+    <div class="modal">
+      <div class="big-icon">👋</div>
+      <h2 style="color:#856404;">Safe travels!</h2>
+      <div class="person-name" id="checkoutSuccessName"></div>
+      <p>Your departure has been recorded. See you next time!</p>
+      <button class="btn-ok" onclick="closeAll()">Done</button>
+    </div>
+  </div>
+
+  <!-- ── Error ── -->
   <div class="overlay" id="errorOverlay">
-    <div class="error-card">
-      <div style="font-size:48px;">⚠️</div>
-      <h2>Something went wrong</h2>
+    <div class="modal">
+      <div class="big-icon">⚠️</div>
+      <h2 style="color:#721c24;">Something went wrong</h2>
       <p id="errorMsg">Unable to connect. Please ask a staff member for help.</p>
-      <button class="btn-ok" onclick="document.getElementById('errorOverlay').classList.remove('show')" style="background:#dc3545;">Close</button>
+      <button class="btn-ok red" onclick="closeAll()">Close</button>
     </div>
   </div>
 
   <script>
     // ─────────────────────────────────────────────
-    // CONFIGURATION — replace with your deployed
-    // Google Apps Script Web App URL after setup
+    // CONFIGURATION
     // ─────────────────────────────────────────────
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxusemYESkLPCL3nPQS4uffbjqWDqIqGIzT2RYwD6DaEzSG5GVuf690hsnhU_AE2p7d/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNatHKuopNBEWhqq1lDe-VC-EdJAbf82q2RCfGKHr4fwAGXLRKfilOFBUmzEtXZxnm/exec';
 
-    let allAttendees = [];   // [{ name, checkedIn, timestamp }]
+    let allAttendees = [];
 
+    // ── Load ──────────────────────────────────────
     async function loadAttendees() {
       try {
         const res  = await fetch(`${SCRIPT_URL}?action=list`);
@@ -201,6 +237,7 @@
       }
     }
 
+    // ── Render ────────────────────────────────────
     function renderList(attendees) {
       const list = document.getElementById('attendeeList');
       const q    = document.getElementById('searchBox').value.toLowerCase().trim();
@@ -211,37 +248,50 @@
         return;
       }
 
-      list.innerHTML = filtered.map(a => `
-        <button
-          class="attendee-btn ${a.checkedIn ? 'checked-in' : ''}"
-          onclick="${a.checkedIn ? '' : `checkIn('${encodeURIComponent(a.name)}')`}"
-          ${a.checkedIn ? 'disabled' : ''}
-        >
-          <span>${a.name}</span>
-          <span class="check-icon">${a.checkedIn ? '✅' : '→'}</span>
-        </button>
-      `).join('');
+      list.innerHTML = filtered.map(a => {
+        if (a.checkedOut) {
+          // Departed — disabled
+          return `
+            <button class="attendee-btn departed" disabled>
+              <span class="btn-label">
+                <span>${a.name}</span>
+                <span class="btn-sub">Departed ${a.checkOutTime || ''}</span>
+              </span>
+              <span class="check-icon">🏁</span>
+            </button>`;
+        } else if (a.checkedIn) {
+          // On board — tappable to check out
+          return `
+            <button class="attendee-btn on-board" onclick="promptCheckOut('${encodeURIComponent(a.name)}')">
+              <span class="btn-label">
+                <span>${a.name}</span>
+                <span class="btn-sub">On board · tap to check out</span>
+              </span>
+              <span class="check-icon">🚢</span>
+            </button>`;
+        } else {
+          // Not yet arrived — tappable to check in
+          return `
+            <button class="attendee-btn" onclick="checkIn('${encodeURIComponent(a.name)}')">
+              <span>${a.name}</span>
+              <span class="check-icon">→</span>
+            </button>`;
+        }
+      }).join('');
     }
 
-    document.getElementById('searchBox').addEventListener('input', () => {
-      renderList(allAttendees);
-    });
+    document.getElementById('searchBox').addEventListener('input', () => renderList(allAttendees));
 
+    // ── Check In ──────────────────────────────────
     async function checkIn(encodedName) {
       const name = decodeURIComponent(encodedName);
       try {
         const res  = await fetch(`${SCRIPT_URL}?action=checkin&name=${encodedName}`);
         const data = await res.json();
-
         if (data.success) {
-          // Update local state
-          const idx = allAttendees.findIndex(a => a.name === name);
-          if (idx !== -1) allAttendees[idx].checkedIn = true;
-          renderList(allAttendees);
-
-          // Show success overlay
-          document.getElementById('successName').textContent = name;
-          document.getElementById('successOverlay').classList.add('show');
+          updateLocal(name, { checkedIn: true });
+          document.getElementById('checkinName').textContent = name;
+          showOverlay('checkinOverlay');
         } else {
           showError(data.message || 'Check-in failed. Please try again.');
         }
@@ -250,18 +300,56 @@
       }
     }
 
-    function closeOverlay() {
-      document.getElementById('successOverlay').classList.remove('show');
+    // ── Check Out (confirm step) ──────────────────
+    function promptCheckOut(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      document.getElementById('checkoutConfirmName').textContent = name;
+      document.getElementById('checkoutConfirmBtn').onclick = () => doCheckOut(encodedName);
+      showOverlay('checkoutConfirmOverlay');
+    }
+
+    async function doCheckOut(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      closeAll();
+      try {
+        const res  = await fetch(`${SCRIPT_URL}?action=checkout&name=${encodedName}`);
+        const data = await res.json();
+        if (data.success) {
+          updateLocal(name, { checkedOut: true, checkOutTime: new Date().toLocaleTimeString() });
+          document.getElementById('checkoutSuccessName').textContent = name;
+          showOverlay('checkoutSuccessOverlay');
+        } else {
+          showError(data.message || 'Check-out failed. Please try again.');
+        }
+      } catch (e) {
+        showError('Network error. Please check your connection.');
+      }
+    }
+
+    // ── Helpers ───────────────────────────────────
+    function updateLocal(name, fields) {
+      const idx = allAttendees.findIndex(a => a.name === name);
+      if (idx !== -1) Object.assign(allAttendees[idx], fields);
+      renderList(allAttendees);
+    }
+
+    function showOverlay(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function closeAll() {
+      ['checkinOverlay','checkoutConfirmOverlay','checkoutSuccessOverlay','errorOverlay']
+        .forEach(id => document.getElementById(id).classList.remove('show'));
       document.getElementById('searchBox').value = '';
       renderList(allAttendees);
     }
 
     function showError(msg) {
       document.getElementById('errorMsg').textContent = msg;
-      document.getElementById('errorOverlay').classList.add('show');
+      showOverlay('errorOverlay');
     }
 
-    // Refresh the list every 30 seconds so check-ins from others appear
+    // Auto-refresh every 30 seconds
     loadAttendees();
     setInterval(loadAttendees, 30000);
   </script>

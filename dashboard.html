@@ -26,10 +26,8 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-
     header h1 { font-size: 22px; font-weight: 700; }
     header p  { font-size: 13px; opacity: 0.8; margin-top: 2px; }
-
     .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
     .btn {
@@ -44,30 +42,28 @@
     .btn:hover { opacity: 0.85; }
     .btn-white  { background: white; color: #023e8a; }
     .btn-green  { background: #28a745; color: white; }
-    .btn-orange { background: #fd7e14; color: white; }
 
-    /* ---- Stats row ---- */
+    /* ── Stats ── */
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
       margin-bottom: 20px;
     }
-
     .stat-card {
       background: white;
       border-radius: 14px;
-      padding: 20px;
+      padding: 18px 14px;
       text-align: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .stat-card .number { font-size: 40px; font-weight: 700; color: #023e8a; }
-    .stat-card .label  { font-size: 13px; color: #666; margin-top: 4px; }
-
+    .stat-card .number { font-size: 36px; font-weight: 700; color: #023e8a; }
+    .stat-card .label  { font-size: 12px; color: #666; margin-top: 4px; }
     .stat-card.green  .number { color: #28a745; }
     .stat-card.orange .number { color: #fd7e14; }
+    .stat-card.red    .number { color: #dc3545; }
 
-    /* ---- Progress bar ---- */
+    /* ── Progress bar ── */
     .progress-wrap {
       background: white;
       border-radius: 14px;
@@ -75,21 +71,21 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .progress-label { display: flex; justify-content: space-between; font-size: 14px; color: #555; margin-bottom: 8px; }
-    .progress-bar   { height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden; }
-    .progress-fill  { height: 100%; background: linear-gradient(90deg, #0077b6, #28a745); border-radius: 6px; transition: width 0.4s ease; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 6px; }
+    .progress-bar   { height: 12px; background: #e9ecef; border-radius: 6px; overflow: hidden; display: flex; }
+    .progress-fill-in  { height: 100%; background: #28a745; transition: width 0.4s ease; }
+    .progress-fill-out { height: 100%; background: #dc3545; transition: width 0.4s ease; }
 
-    /* ---- Controls ---- */
+    /* ── Controls ── */
     .controls {
       display: flex;
       gap: 10px;
       margin-bottom: 16px;
       flex-wrap: wrap;
     }
-
     .search-box {
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
       padding: 10px 14px;
       border: 2px solid #dee2e6;
       border-radius: 10px;
@@ -99,7 +95,7 @@
     .search-box:focus { border-color: #0077b6; }
 
     .filter-btn {
-      padding: 10px 16px;
+      padding: 9px 14px;
       border: 2px solid #dee2e6;
       border-radius: 10px;
       background: white;
@@ -108,49 +104,52 @@
       cursor: pointer;
       transition: all 0.15s;
       color: #555;
+      white-space: nowrap;
     }
-    .filter-btn.active       { background: #0077b6; border-color: #0077b6; color: white; }
-    .filter-btn.active.green { background: #28a745; border-color: #28a745; }
-    .filter-btn.active.red   { background: #dc3545; border-color: #dc3545; }
+    .filter-btn.active         { background: #0077b6; border-color: #0077b6; color: white; }
+    .filter-btn.active.green   { background: #28a745; border-color: #28a745; }
+    .filter-btn.active.red     { background: #dc3545; border-color: #dc3545; }
+    .filter-btn.active.orange  { background: #fd7e14; border-color: #fd7e14; }
 
-    /* ---- Attendee table ---- */
+    /* ── Table ── */
     .table-wrap {
       background: white;
       border-radius: 14px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      overflow: hidden;
+      overflow-x: auto;
     }
-
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
     thead { background: #f8f9fa; }
-    th { padding: 12px 18px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #888; font-weight: 600; }
-    td { padding: 14px 18px; font-size: 14px; color: #333; border-top: 1px solid #f1f3f5; }
-
+    th { padding: 11px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #888; font-weight: 600; }
+    td { padding: 13px 16px; font-size: 14px; color: #333; border-top: 1px solid #f1f3f5; }
     tr:hover td { background: #f8f9fa; }
 
     .badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
     }
-    .badge-in  { background: #d4edda; color: #155724; }
-    .badge-out { background: #ffeeba; color: #856404; }
+    .badge-pending  { background: #fff3cd; color: #856404; }
+    .badge-in       { background: #d4edda; color: #155724; }
+    .badge-out      { background: #f8d7da; color: #721c24; }
+
+    .ts { font-size: 12px; color: #888; white-space: nowrap; }
 
     .no-data { text-align: center; padding: 40px; color: #aaa; }
-
     .last-updated { text-align: right; font-size: 12px; color: #aaa; margin-top: 10px; }
 
-    /* Manual override button */
+    .action-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
     .override-btn {
-      padding: 4px 10px;
+      padding: 3px 10px;
       border: 1px solid #dee2e6;
       border-radius: 6px;
       background: white;
       font-size: 12px;
       cursor: pointer;
       color: #555;
+      white-space: nowrap;
     }
     .override-btn:hover { background: #f0f0f0; }
   </style>
@@ -176,31 +175,40 @@
     </div>
     <div class="stat-card green">
       <div class="number" id="statIn">—</div>
-      <div class="label">Checked In</div>
+      <div class="label">On Board</div>
+    </div>
+    <div class="stat-card red">
+      <div class="number" id="statOut">—</div>
+      <div class="label">Departed</div>
     </div>
     <div class="stat-card orange">
-      <div class="number" id="statOut">—</div>
-      <div class="label">Not Yet In</div>
+      <div class="number" id="statPending">—</div>
+      <div class="label">Not Arrived</div>
     </div>
   </div>
 
   <!-- Progress bar -->
   <div class="progress-wrap">
     <div class="progress-label">
-      <span>Check-in progress</span>
-      <span id="progressPct">0%</span>
+      <span>
+        <span style="color:#28a745;">■</span> On Board &nbsp;
+        <span style="color:#dc3545;">■</span> Departed
+      </span>
+      <span id="progressPct">0% boarded</span>
     </div>
     <div class="progress-bar">
-      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      <div class="progress-fill-in"  id="progressIn"  style="width:0%"></div>
+      <div class="progress-fill-out" id="progressOut" style="width:0%"></div>
     </div>
   </div>
 
   <!-- Controls -->
   <div class="controls">
     <input class="search-box" type="search" placeholder="🔍  Search by name…" id="searchBox" oninput="renderTable()" />
-    <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">All</button>
-    <button class="filter-btn" id="filterIn" onclick="setFilter('in')">✅ Checked In</button>
-    <button class="filter-btn" id="filterOut" onclick="setFilter('out')">⏳ Not Yet</button>
+    <button class="filter-btn active"  id="filterAll"     onclick="setFilter('all')">All</button>
+    <button class="filter-btn"         id="filterIn"      onclick="setFilter('in')">🚢 On Board</button>
+    <button class="filter-btn"         id="filterOut"     onclick="setFilter('out')">🏁 Departed</button>
+    <button class="filter-btn"         id="filterPending" onclick="setFilter('pending')">⏳ Not Arrived</button>
   </div>
 
   <!-- Table -->
@@ -212,11 +220,12 @@
           <th>Name</th>
           <th>Status</th>
           <th>Check-In Time</th>
-          <th>Action</th>
+          <th>Check-Out Time</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="5" class="no-data">Loading…</td></tr>
+        <tr><td colspan="6" class="no-data">Loading…</td></tr>
       </tbody>
     </table>
   </div>
@@ -224,10 +233,9 @@
 
   <script>
     // ─────────────────────────────────────────────
-    // CONFIGURATION — replace with your deployed
-    // Google Apps Script Web App URL after setup
+    // CONFIGURATION
     // ─────────────────────────────────────────────
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxusemYESkLPCL3nPQS4uffbjqWDqIqGIzT2RYwD6DaEzSG5GVuf690hsnhU_AE2p7d/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNatHKuopNBEWhqq1lDe-VC-EdJAbf82q2RCfGKHr4fwAGXLRKfilOFBUmzEtXZxnm/exec';
 
     let allData   = [];
     let curFilter = 'all';
@@ -240,86 +248,95 @@
         updateStats();
         renderTable();
         const now = new Date();
-        document.getElementById('lastUpdated').textContent =
-          `Last updated: ${now.toLocaleTimeString()}`;
-        document.getElementById('refreshNote').textContent =
-          `Auto-refreshes every 15 seconds · ${now.toLocaleString()}`;
+        document.getElementById('lastUpdated').textContent  = `Last updated: ${now.toLocaleTimeString()}`;
+        document.getElementById('refreshNote').textContent  = `Auto-refreshes every 15 seconds · ${now.toLocaleString()}`;
       } catch (e) {
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="5" class="no-data">⚠️ Could not load data. Check your connection.</td></tr>';
+          '<tr><td colspan="6" class="no-data">⚠️ Could not load data. Check your connection.</td></tr>';
       }
     }
 
     function updateStats() {
-      const total  = allData.length;
-      const inCnt  = allData.filter(a => a.checkedIn).length;
-      const outCnt = total - inCnt;
-      const pct    = total ? Math.round((inCnt / total) * 100) : 0;
+      const total   = allData.length;
+      const onBoard = allData.filter(a => a.checkedIn && !a.checkedOut).length;
+      const depart  = allData.filter(a => a.checkedOut).length;
+      const pending = allData.filter(a => !a.checkedIn).length;
+      const pctIn   = total ? Math.round((onBoard / total) * 100) : 0;
+      const pctOut  = total ? Math.round((depart  / total) * 100) : 0;
 
-      document.getElementById('statTotal').textContent = total;
-      document.getElementById('statIn').textContent    = inCnt;
-      document.getElementById('statOut').textContent   = outCnt;
-      document.getElementById('progressPct').textContent = `${pct}%`;
-      document.getElementById('progressFill').style.width = `${pct}%`;
+      document.getElementById('statTotal').textContent   = total;
+      document.getElementById('statIn').textContent      = onBoard;
+      document.getElementById('statOut').textContent     = depart;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('progressPct').textContent = `${pctIn}% boarded`;
+      document.getElementById('progressIn').style.width  = `${pctIn}%`;
+      document.getElementById('progressOut').style.width = `${pctOut}%`;
     }
 
     function setFilter(f) {
       curFilter = f;
-      ['all','in','out'].forEach(id => {
-        const btn = document.getElementById('filter' + id.charAt(0).toUpperCase() + id.slice(1));
-        btn.classList.toggle('active', id === f);
+      const map = { all: 'filterAll', in: 'filterIn', out: 'filterOut', pending: 'filterPending' };
+      const colorMap = { in: 'green', out: 'red', pending: 'orange' };
+      Object.entries(map).forEach(([key, id]) => {
+        const btn = document.getElementById(id);
+        btn.classList.toggle('active', key === f);
+        if (key === f && colorMap[key]) btn.classList.add(colorMap[key]);
+        else btn.classList.remove('green','red','orange');
       });
       renderTable();
     }
 
     function renderTable() {
       const q = document.getElementById('searchBox').value.toLowerCase().trim();
-
       let rows = allData;
-      if (curFilter === 'in')  rows = rows.filter(a => a.checkedIn);
-      if (curFilter === 'out') rows = rows.filter(a => !a.checkedIn);
+      if (curFilter === 'in')      rows = rows.filter(a => a.checkedIn && !a.checkedOut);
+      if (curFilter === 'out')     rows = rows.filter(a => a.checkedOut);
+      if (curFilter === 'pending') rows = rows.filter(a => !a.checkedIn);
       if (q) rows = rows.filter(a => a.name.toLowerCase().includes(q));
 
       if (!rows.length) {
         document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="5" class="no-data">No matching attendees.</td></tr>';
+          '<tr><td colspan="6" class="no-data">No matching attendees.</td></tr>';
         return;
       }
 
-      document.getElementById('tableBody').innerHTML = rows.map((a, i) => `
-        <tr>
-          <td style="color:#aaa;">${i + 1}</td>
-          <td style="font-weight:500;">${a.name}</td>
-          <td>
-            <span class="badge ${a.checkedIn ? 'badge-in' : 'badge-out'}">
-              ${a.checkedIn ? '✅ Checked In' : '⏳ Pending'}
-            </span>
-          </td>
-          <td style="color:#888;">${a.timestamp || '—'}</td>
-          <td>
-            ${a.checkedIn
-              ? `<button class="override-btn" onclick="toggleCheckin('${encodeURIComponent(a.name)}', false)">Undo</button>`
-              : `<button class="override-btn" onclick="toggleCheckin('${encodeURIComponent(a.name)}', true)">Mark In</button>`
-            }
-          </td>
-        </tr>
-      `).join('');
+      document.getElementById('tableBody').innerHTML = rows.map((a, i) => {
+        let badge, statusLabel;
+        if (a.checkedOut)       { badge = 'badge-out';     statusLabel = '🏁 Departed'; }
+        else if (a.checkedIn)   { badge = 'badge-in';      statusLabel = '🚢 On Board'; }
+        else                    { badge = 'badge-pending';  statusLabel = '⏳ Pending'; }
+
+        const actions = [];
+        if (!a.checkedIn) {
+          actions.push(`<button class="override-btn" onclick="doAction('checkin','${encodeURIComponent(a.name)}')">Mark In</button>`);
+        }
+        if (a.checkedIn && !a.checkedOut) {
+          actions.push(`<button class="override-btn" onclick="doAction('checkout','${encodeURIComponent(a.name)}')">Mark Out</button>`);
+          actions.push(`<button class="override-btn" onclick="doAction('undo','${encodeURIComponent(a.name)}')">Undo In</button>`);
+        }
+        if (a.checkedOut) {
+          actions.push(`<button class="override-btn" onclick="doAction('undocheckout','${encodeURIComponent(a.name)}')">Undo Out</button>`);
+        }
+
+        return `
+          <tr>
+            <td style="color:#aaa;">${i + 1}</td>
+            <td style="font-weight:500;">${a.name}</td>
+            <td><span class="badge ${badge}">${statusLabel}</span></td>
+            <td class="ts">${a.checkInTime  || '—'}</td>
+            <td class="ts">${a.checkOutTime || '—'}</td>
+            <td><div class="action-wrap">${actions.join('')}</div></td>
+          </tr>`;
+      }).join('');
     }
 
-    async function toggleCheckin(encodedName, checkin) {
-      const name   = decodeURIComponent(encodedName);
-      const action = checkin ? 'checkin' : 'undo';
+    async function doAction(action, encodedName) {
+      const name = decodeURIComponent(encodedName);
       try {
         const res  = await fetch(`${SCRIPT_URL}?action=${action}&name=${encodedName}`);
         const data = await res.json();
         if (data.success) {
-          const idx = allData.findIndex(a => a.name === name);
-          if (idx !== -1) {
-            allData[idx].checkedIn  = checkin;
-            allData[idx].timestamp  = checkin ? new Date().toLocaleTimeString() : '';
-          }
-          updateStats();
-          renderTable();
+          await loadData();
         } else {
           alert(data.message || 'Action failed.');
         }
@@ -329,21 +346,22 @@
     }
 
     function exportCSV() {
-      const header = 'Name,Status,Check-In Time\n';
-      const rows   = allData.map(a =>
-        `"${a.name}","${a.checkedIn ? 'Checked In' : 'Not Checked In'}","${a.timestamp || ''}"`
-      ).join('\n');
+      const header = 'Name,Status,Check-In Time,Check-Out Time\n';
+      const rows   = allData.map(a => {
+        let status = a.checkedOut ? 'Departed' : a.checkedIn ? 'On Board' : 'Not Arrived';
+        return `"${a.name}","${status}","${a.checkInTime || ''}","${a.checkOutTime || ''}"`;
+      }).join('\n');
       const blob = new Blob([header + rows], { type: 'text/csv' });
       const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
-      a.download = `cruise-checkin-${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
+      const link = document.createElement('a');
+      link.href     = url;
+      link.download = `cruise-checkin-${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
       URL.revokeObjectURL(url);
     }
 
     loadData();
-    setInterval(loadData, 15000);   // Auto-refresh every 15 seconds
+    setInterval(loadData, 15000);
   </script>
 
 </body>
